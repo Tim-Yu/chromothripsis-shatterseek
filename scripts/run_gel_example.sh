@@ -15,9 +15,10 @@
 # source through the github.com /raw/ route and install it into your library:
 #   bash gh_raw_fetch.sh parklab/ShatterSeek -o ShatterSeek
 #   Rscript install_shatterseek_RE.R --src ShatterSeek
-# The installer and all scripts append the shared trees
-# /tools/aws-workspace-ubuntu-apps/ce/R/4.5.3 and /tools/aws-workspace-apps/ce/R/4.2.1/
-# to .libPaths() so the dependencies are found.
+# All scripts set the library path themselves when the directories exist:
+#   .libPaths(c("/home/byu/R/x86_64-pc-linux-gnu-library/4.5", .libPaths(),
+#               "/tools/aws-workspace-ubuntu-apps/ce/R/4.5.3", "/tools/aws-workspace-apps/ce/R/4.2.1/"))
+# (ShatterSeek in the personal library, dependencies in the shared trees).
 # ---------------------------------------------------------------------------
 set -euo pipefail
 

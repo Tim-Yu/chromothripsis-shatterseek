@@ -26,14 +26,20 @@
 ##
 ## See legacy/README_legacy.md for the rationale behind every change.
 ##################################################################################
-# Extra library trees (GEL research environment): appended when they exist, so
-# shared dependencies are found without editing the script. Override / extend
-# with the environment variable SHATTERSEEK_EXTRA_LIBS="dir1:dir2".
+# Library paths for the GEL research environment, applied only when the
+# directories exist, so nothing changes elsewhere. Equivalent to
+#   .libPaths(c("/home/byu/R/x86_64-pc-linux-gnu-library/4.5", .libPaths(),
+#               "/tools/aws-workspace-ubuntu-apps/ce/R/4.5.3", "/tools/aws-workspace-apps/ce/R/4.2.1/"))
+# i.e. the personal library holding ShatterSeek first, the shared trees with the
+# dependencies last. Override / extend with SHATTERSEEK_LIB (prepended) and
+# SHATTERSEEK_EXTRA_LIBS="dir1:dir2" (appended).
 local({
+  personal <- c(Sys.getenv("SHATTERSEEK_LIB", ""), "/home/byu/R/x86_64-pc-linux-gnu-library/4.5")
   extra <- c("/tools/aws-workspace-ubuntu-apps/ce/R/4.5.3", "/tools/aws-workspace-apps/ce/R/4.2.1/",
              strsplit(Sys.getenv("SHATTERSEEK_EXTRA_LIBS", ""), ":")[[1]])
+  personal <- personal[nzchar(personal) & dir.exists(personal)]
   extra <- extra[nzchar(extra) & dir.exists(extra)]
-  if (length(extra)) .libPaths(c(.libPaths(), extra))
+  if (length(personal) || length(extra)) .libPaths(c(personal, .libPaths(), extra))
 })
 
 suppressPackageStartupMessages({

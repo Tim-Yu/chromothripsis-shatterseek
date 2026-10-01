@@ -43,8 +43,14 @@ Rscript scripts/install_shatterseek_RE.R --src ShatterSeek             # install
 ```
 Dependencies: `BiocGenerics`, `graph`, `S4Vectors`, `GenomicRanges`, `IRanges`, `MASS`, `ggplot2`, `gridExtra`,
 `foreach` (ShatterSeek); `copynumber`, `MASS`, `GenomicRanges` (legacy scripts). All are in the GEL shared trees.
-The runner and legacy scripts append the same two shared trees to `.libPaths()` automatically when they exist;
-extra trees can be given with `SHATTERSEEK_EXTRA_LIBS="dir1:dir2"`.
+The runner and legacy scripts set the library path automatically when the directories exist, equivalent to
+```r
+.libPaths(c("/home/byu/R/x86_64-pc-linux-gnu-library/4.5", .libPaths(),
+            "/tools/aws-workspace-ubuntu-apps/ce/R/4.5.3", "/tools/aws-workspace-apps/ce/R/4.2.1/"))
+```
+(personal library with ShatterSeek first, shared trees with the dependencies last). Another personal library can be
+given with `SHATTERSEEK_LIB=<dir>`, extra shared trees with `SHATTERSEEK_EXTRA_LIBS="dir1:dir2"`. Use the same
+line in an interactive R session before `library(ShatterSeek)`.
 
 ```bash
 git clone https://github.com/Tim-Yu/chromothripsis-shatterseek.git

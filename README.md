@@ -17,8 +17,7 @@ scripts/
   run_shatterseek_persample.R    per-sample bedpe + CN files (single sample or --matrix batch)
   run_shatterseek_cohort.R       SVs.txt / CNAs.txt cohort tables
   run_gel_example.sh             end-to-end example with the GEL RE paths (matrix -> ShatterSeek)
-  gh_raw_fetch.sh                download files from any public GitHub repo via the /raw/ address only
-FILES.txt                        list of repository files (lets gh_raw_fetch.sh pull the whole repo)
+  gh_raw_fetch.sh                download files or whole public GitHub repos via github.com /raw/ addresses (no git, no API)
 legacy/
   chromothripsis_improved.r          improved legacy caller (same inputs/columns as the original + new statistics, tiered calls)
   chromothripsis_original_runnable.r original algorithm, unchanged, as a CLI (for comparison)
@@ -43,15 +42,19 @@ Dependencies: `BiocGenerics`, `graph`, `S4Vectors`, `GenomicRanges`, `IRanges`, 
 git clone https://github.com/Tim-Yu/chromothripsis-shatterseek.git
 ```
 
-**Restricted environments** (no git, no GitHub API, only `https://github.com/<owner>/<repo>/raw/...` reachable):
-save `scripts/gh_raw_fetch.sh` once, then
+**Restricted environments** (no git, no api.github.com; only github.com reachable): save `scripts/gh_raw_fetch.sh`
+once (`curl -L -o gh_raw_fetch.sh https://github.com/Tim-Yu/chromothripsis-shatterseek/raw/main/scripts/gh_raw_fetch.sh`), then
 
 ```bash
-# whole repository (reads FILES.txt from the repo root)
+# whole repository: the file list is read from the repo's tree pages, every file from its /raw/ address
 bash gh_raw_fetch.sh Tim-Yu/chromothripsis-shatterseek -o chromothripsis-shatterseek
-# selected files, or a list file with one path per line; branch via owner/repo@branch (main, falls back to master)
+bash gh_raw_fetch.sh parklab/ShatterSeek -o ShatterSeek            # then: R CMD INSTALL ShatterSeek
+# one sub-directory, selected files, or a list file with one path per line
+bash gh_raw_fetch.sh parklab/ShatterSeek -d R -o ShatterSeek
 bash gh_raw_fetch.sh Tim-Yu/chromothripsis-shatterseek scripts/shatterseek_lib.R README.md
-bash gh_raw_fetch.sh parklab/ShatterSeek -o ShatterSeek -l shatterseek_files.txt
+bash gh_raw_fetch.sh Tim-Yu/chromothripsis-shatterseek -l files.txt
+# branch, tag or commit via owner/repo@ref (default main, falls back to master); a commit SHA avoids CDN cache lag
+bash gh_raw_fetch.sh Tim-Yu/chromothripsis-shatterseek@d47f7c8 -o chromothripsis-shatterseek
 ```
 
 ## 2. Input formats

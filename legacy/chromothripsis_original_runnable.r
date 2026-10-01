@@ -21,6 +21,16 @@
 ##
 ## See legacy/README_legacy.md for a step-by-step description of the algorithm.
 ##################################################################################
+# Extra library trees (GEL research environment): appended when they exist, so
+# shared dependencies are found without editing the script. Override / extend
+# with the environment variable SHATTERSEEK_EXTRA_LIBS="dir1:dir2".
+local({
+  extra <- c("/tools/aws-workspace-ubuntu-apps/ce/R/4.5.3", "/tools/aws-workspace-apps/ce/R/4.2.1/",
+             strsplit(Sys.getenv("SHATTERSEEK_EXTRA_LIBS", ""), ":")[[1]])
+  extra <- extra[nzchar(extra) & dir.exists(extra)]
+  if (length(extra)) .libPaths(c(.libPaths(), extra))
+})
+
 suppressPackageStartupMessages({
     library(MASS)
     library(copynumber)

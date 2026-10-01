@@ -18,6 +18,7 @@ scripts/
   run_shatterseek_cohort.R       SVs.txt / CNAs.txt cohort tables
   run_gel_example.sh             end-to-end example with the GEL RE paths (matrix -> ShatterSeek)
   gh_raw_fetch.sh                download files or whole public GitHub repos via github.com /raw/ addresses (no git, no API)
+  install_shatterseek_RE.R       install ShatterSeek from the fetched source inside the research environment
 legacy/
   chromothripsis_improved.r          improved legacy caller (same inputs/columns as the original + new statistics, tiered calls)
   chromothripsis_original_runnable.r original algorithm, unchanged, as a CLI (for comparison)
@@ -32,11 +33,18 @@ R >= 4.0. ShatterSeek is not on CRAN.
 ```bash
 # online
 Rscript -e 'remotes::install_github("parklab/ShatterSeek", upgrade="never")'
-# offline (e.g. GEL research environment): download the GitHub tarball, airlock it in, then
-R CMD INSTALL ShatterSeek-master.tar.gz
+
+# GEL research environment (no CRAN/GitHub; dependencies live in the shared library trees)
+bash scripts/gh_raw_fetch.sh parklab/ShatterSeek -o ShatterSeek        # source via github.com /raw/ only
+Rscript scripts/install_shatterseek_RE.R --src ShatterSeek             # installs into your personal library
+#   the installer appends /tools/aws-workspace-ubuntu-apps/ce/R/4.5.3 and /tools/aws-workspace-apps/ce/R/4.2.1/
+#   to .libPaths() (equivalent to the usual .libPaths(c(.libPaths(), "/tools/...")) lines) so the dependencies
+#   are found; change them with --extra-libs dir1,dir2 and the target library with --lib <dir>
 ```
 Dependencies: `BiocGenerics`, `graph`, `S4Vectors`, `GenomicRanges`, `IRanges`, `MASS`, `ggplot2`, `gridExtra`,
-`foreach` (ShatterSeek); `copynumber`, `MASS`, `GenomicRanges` (legacy scripts). All are in the standard GEL R modules.
+`foreach` (ShatterSeek); `copynumber`, `MASS`, `GenomicRanges` (legacy scripts). All are in the GEL shared trees.
+The runner and legacy scripts append the same two shared trees to `.libPaths()` automatically when they exist;
+extra trees can be given with `SHATTERSEEK_EXTRA_LIBS="dir1:dir2"`.
 
 ```bash
 git clone https://github.com/Tim-Yu/chromothripsis-shatterseek.git
@@ -48,7 +56,7 @@ once (`curl -L -o gh_raw_fetch.sh https://github.com/Tim-Yu/chromothripsis-shatt
 ```bash
 # whole repository: the file list is read from the repo's tree pages, every file from its /raw/ address
 bash gh_raw_fetch.sh Tim-Yu/chromothripsis-shatterseek -o chromothripsis-shatterseek
-bash gh_raw_fetch.sh parklab/ShatterSeek -o ShatterSeek            # then: R CMD INSTALL ShatterSeek
+bash gh_raw_fetch.sh parklab/ShatterSeek -o ShatterSeek            # then: Rscript install_shatterseek_RE.R --src ShatterSeek
 # one sub-directory, selected files, or a list file with one path per line
 bash gh_raw_fetch.sh parklab/ShatterSeek -d R -o ShatterSeek
 bash gh_raw_fetch.sh Tim-Yu/chromothripsis-shatterseek scripts/shatterseek_lib.R README.md

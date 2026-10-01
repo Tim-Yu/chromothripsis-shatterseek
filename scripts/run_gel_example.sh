@@ -11,12 +11,13 @@
 #   bsub -q medium -P re_gecip_cancer_sarcoma -n 4 -R "rusage[mem=8000]" \
 #        -o shatterseek.%J.log -e shatterseek.%J.err bash run_gel_example.sh   # or via LSF
 #
-# ShatterSeek is not on CRAN. Inside the RE (no GitHub access) install it from
-# the tarball shipped in ../deps:
-#   R CMD INSTALL ../deps/ShatterSeek-master.tar.gz
-# or  Rscript -e 'install.packages("../deps/ShatterSeek-master.tar.gz", repos=NULL, type="source")'
-# Dependencies (BiocGenerics, graph, S4Vectors, GenomicRanges, IRanges, MASS,
-# ggplot2, gridExtra, foreach) are in the standard R modules.
+# ShatterSeek is not on CRAN. Inside the RE (no GitHub/CRAN access) fetch the
+# source through the github.com /raw/ route and install it into your library:
+#   bash gh_raw_fetch.sh parklab/ShatterSeek -o ShatterSeek
+#   Rscript install_shatterseek_RE.R --src ShatterSeek
+# The installer and all scripts append the shared trees
+# /tools/aws-workspace-ubuntu-apps/ce/R/4.5.3 and /tools/aws-workspace-apps/ce/R/4.2.1/
+# to .libPaths() so the dependencies are found.
 # ---------------------------------------------------------------------------
 set -euo pipefail
 

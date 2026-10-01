@@ -26,7 +26,7 @@ module load R/4.2.1 2>/dev/null || true
 # --- paths -----------------------------------------------------------------
 PATIENTS_TXT="patients.txt"                                       # one patientID per line
 SV_ROOT="/re_gecip/cancer_sarcoma/19.ComplexSVs/19.5.SVs/19.5.7.ConsensusCalls/5_callers"
-CN_ROOT="/re_gecip/cancer_sarcoma/<battenberg_output_root>"       # holds P_<PID>_T_<SID>_* folders
+CN_ROOT="/re_gecip/cancer_sarcoma/33.CN_Sigs/33.4.BB_fix/BB_merged"   # holds P_<PID>_T_<SID>_* folders
 CIRCOS_SCRIPTS="/re_gecip/cancer_sarcoma/32.TERT_project/Pui_BEDfiles/circos_plot"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTDIR="shatterseek_output"

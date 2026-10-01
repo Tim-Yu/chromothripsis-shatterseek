@@ -1,0 +1,8 @@
+*.rds
+*.pdf
+*.png
+test_output/
+mock_data/
+shatterseek_output*/
+.Rhistory
+.DS_Store

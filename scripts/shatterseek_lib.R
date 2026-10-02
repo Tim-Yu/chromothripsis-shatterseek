@@ -483,10 +483,31 @@ plot_called_chromosomes <- function(out, summary_df, outdir, sample_id, genome =
   invisible(files)
 }
 
+# ShatterSeek joins the partner-chromosome coordinates with alternating ";" and
+# "\n" separators (inter_other_chroms_coords_all), and a raw newline or tab
+# inside a cell breaks a TSV. Clean every character column before writing.
+clean_for_tsv <- function(df) {
+  for (col in names(df)) {
+    if (is.character(df[[col]]) || is.factor(df[[col]])) {
+      x <- as.character(df[[col]])
+      x <- gsub("[\r\n]+", ";", x)
+      x <- gsub("\t", " ", x)
+      x <- gsub(";{2,}", ";", x)
+      x <- gsub("^;|;$", "", trimws(x))
+      df[[col]] <- x
+    }
+  }
+  df
+}
+
+write_tsv <- function(df, path) {
+  write.table(clean_for_tsv(df), path, sep = "\t", quote = FALSE, row.names = FALSE, na = "NA")
+}
+
 # Write the standard output set for one sample
 write_sample_outputs <- function(out, summary_df, outdir, sample_id, save_rds = TRUE) {
   dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
-  write.table(summary_df, file.path(outdir, paste0(sample_id, "_shatterseek_summary.tsv")), sep = "\t", quote = FALSE, row.names = FALSE)
+  write_tsv(summary_df, file.path(outdir, paste0(sample_id, "_shatterseek_summary.tsv")))
   if (save_rds) saveRDS(out, file.path(outdir, paste0(sample_id, "_shatterseek.rds")))
   invisible(NULL)
 }
@@ -547,11 +568,11 @@ run_shatterseek_batch <- function(samples, load_fun, outdir, genome = "hg38", th
   }
   all_df <- if (length(all_rows)) do.call(rbind, all_rows) else NULL
   rownames(all_df) <- NULL
-  write.table(do.call(rbind, log_rows), file.path(outdir, "shatterseek_run_log.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
+  write_tsv(do.call(rbind, log_rows), file.path(outdir, "shatterseek_run_log.tsv"))
   if (!is.null(all_df)) {
-    write.table(all_df, file.path(outdir, "shatterseek_all_chromosomes.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
+    write_tsv(all_df, file.path(outdir, "shatterseek_all_chromosomes.tsv"))
     calls <- all_df[all_df$call != "None", intersect(CALL_COLUMNS, colnames(all_df)), drop = FALSE]
-    write.table(calls, file.path(outdir, "shatterseek_calls.tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
+    write_tsv(calls, file.path(outdir, "shatterseek_calls.tsv"))
     message("\nWrote: ", file.path(outdir, "shatterseek_calls.tsv"), " (", nrow(calls), " called chromosome(s) in ", length(all_rows), " sample(s))")
   }
   write_thresholds(th, file.path(outdir, "thresholds_used.txt"))

@@ -16,7 +16,10 @@ scripts/
   shatterseek_lib.R              shared: readers, harmonisation, ShatterSeek run, calling rules, plots
   run_shatterseek_persample.R    per-sample bedpe + CN files (single sample or --matrix batch)
   run_shatterseek_cohort.R       SVs.txt / CNAs.txt cohort tables
-  run_gel_example.sh             end-to-end example with the GEL RE paths (matrix -> ShatterSeek)
+  run_gel_example.sh             GEL RE: patient list -> matrix -> ShatterSeek (per-sample runner)
+  run_gel_legacy.sh              GEL RE: patient list -> matrix -> cohort tables -> improved legacy caller
+  build_sv_cnv_matrix.R          patient list + SV/CN roots -> matrix (patientID sampleID SV_file_dir CN_file_dir)
+  build_cohort_tables.R          matrix -> SVs.txt + CNAs.txt (legacy cohort format) from bedpe + Battenberg files
   gh_raw_fetch.sh                download files or whole public GitHub repos via github.com /raw/ addresses (no git, no API)
   install_shatterseek_RE.R       install ShatterSeek from the fetched source inside the research environment
 legacy/
@@ -114,9 +117,25 @@ Rscript scripts/run_shatterseek_cohort.R --sv SVs.txt --cn CNAs.txt --outdir sha
 #   --thresholds k=v,k=v   e.g. --thresholds hc_min_osc2=6,p_joins=0.1  (names: default_thresholds() in shatterseek_lib.R)
 ```
 
-`scripts/run_gel_example.sh` chains the group's `build_sv_cnv_matrix.R` (default SV root
-`/re_gecip/cancer_sarcoma/19.ComplexSVs/19.5.SVs/19.5.7.ConsensusCalls/5_callers/`) with the batch runner; edit the
-path variables at the top and run it directly or through `bsub`.
+### GEL research environment, end to end
+
+Both GEL drivers start from a patient list (one patientID per line) and the GEL roots
+(SV: `/re_gecip/cancer_sarcoma/19.ComplexSVs/19.5.SVs/19.5.7.ConsensusCalls/5_callers`,
+Battenberg: `/re_gecip/cancer_sarcoma/33.CN_Sigs/33.4.BB_fix/BB_merged`), set at the top of each script.
+
+```bash
+# ShatterSeek on every sample of the patients
+bash scripts/run_gel_example.sh                                   # -> shatterseek_output/shatterseek_calls.tsv
+
+# improved legacy caller (needs the cohort tables, which are built from the same per-sample files)
+bash scripts/run_gel_legacy.sh patients.txt legacy_output         # -> legacy_output/chromothripsis_improved_calls.tsv
+#   also writes legacy_output/cohort_tables/{SVs.txt,CNAs.txt} and, with RUN_ORIGINAL=true (default),
+#   legacy_output/chromothripsis_original_calls.tsv from the unchanged algorithm for comparison
+#   LEGACY_OPTS="--minEventsSV 10" bash scripts/run_gel_legacy.sh ...   passes options to chromothripsis_improved.r
+```
+Either can be submitted with `bsub` (see the header of each script). The intermediate steps can be run alone:
+`build_sv_cnv_matrix.R` (matrix) and `build_cohort_tables.R --matrix <tsv> --outdir <dir>` (cohort tables; strands are
+derived from `svclass`, `nMaj1/nMin1/...` from the Battenberg `*_A` columns, ploidy as the length-weighted mean total CN).
 
 ### Outputs (per `--outdir`)
 

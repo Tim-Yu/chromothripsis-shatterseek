@@ -3,7 +3,7 @@
 # run_gel_example.sh - end-to-end example for the GEL research environment.
 #
 # Step 1 builds the patientID/sampleID -> SV bedpe / Battenberg CN matrix with
-#        the group's existing build_sv_cnv_matrix.R (from the circos_plot folder).
+#        build_sv_cnv_matrix.R (same script as in the circos_plot pipeline).
 # Step 2 runs ShatterSeek on every row of that matrix.
 #
 # Edit the four path variables below for your environment, then:
@@ -28,7 +28,6 @@ module load R/4.2.1 2>/dev/null || true
 PATIENTS_TXT="patients.txt"                                       # one patientID per line
 SV_ROOT="/re_gecip/cancer_sarcoma/19.ComplexSVs/19.5.SVs/19.5.7.ConsensusCalls/5_callers"
 CN_ROOT="/re_gecip/cancer_sarcoma/33.CN_Sigs/33.4.BB_fix/BB_merged"   # holds P_<PID>_T_<SID>_* folders
-CIRCOS_SCRIPTS="/re_gecip/cancer_sarcoma/32.TERT_project/Pui_BEDfiles/circos_plot"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTDIR="shatterseek_output"
 GENOME="hg38"
@@ -36,7 +35,7 @@ GENOME="hg38"
 mkdir -p "${OUTDIR}"
 
 # --- step 1: matrix ---------------------------------------------------------
-Rscript "${CIRCOS_SCRIPTS}/build_sv_cnv_matrix.R" \
+Rscript "${HERE}/build_sv_cnv_matrix.R" \
   --patients "${PATIENTS_TXT}" \
   --sv-root "${SV_ROOT}" \
   --cn-root "${CN_ROOT}" \
